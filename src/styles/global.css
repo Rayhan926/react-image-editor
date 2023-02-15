@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-xs;
+}
+
+@layer components {
+  .__btn {
+    @apply text-white/90 border border-white/[0.15] hover:border-white/[0.15] duration-200 outline-none disabled:text-white/20 disabled:pointer-events-none hover:bg-white/5 focus-visible:bg-white/5;
+  }
+  .__center {
+    @apply flex items-center justify-center;
+  }
+}
+
+@layer utilities {
+  .__btn.active:not(:disabled) {
+    @apply border bg-white/[0.15] border-white/20 hover:border-white/25;
+  }
+  .__btn.btn_transparent:not(:disabled) {
+    @apply !border-transparent !bg-transparent hover:!border-white/10;
+  }
+}
+
+/* ReactCrop */
+.ReactCrop {
+  @apply !overflow-visible;
+}
+.ReactCrop__drag-handle::after {
+  @apply w-4 h-4 bg-white rounded-full;
+}
+.ReactCrop__crop-selection {
+  @apply border-solid shadow-[0_0_0_9999em_rgb(30_41_59_/_50%)];
+}
+.ReactCrop .ord-nw,
+.ReactCrop .ord-n,
+.ReactCrop .ord-w {
+  @apply -mt-2 -ml-2;
+}
+.ReactCrop .ord-ne,
+.ReactCrop .ord-e {
+  @apply -mt-2 -mr-2;
+}
+
+.ReactCrop .ord-s,
+.ReactCrop .ord-sw {
+  @apply -mb-2 -ml-2;
+}
+.ReactCrop .ord-se {
+  @apply -mb-2 -mr-2;
+}
+
+.ReactCrop .ord-w,
+.ReactCrop .ord-s,
+.ReactCrop .ord-e,
+.ReactCrop .ord-n {
+  @apply opacity-0;
+}
+
+.ReactCrop__drag-elements,
+.ReactCrop__crop-selection {
+  @apply duration-300 transition-[box-shadow,opacity];
+}
+.__hide_crop .ReactCrop__drag-elements {
+  @apply opacity-0;
+}
+
+.__hide_crop .ReactCrop__crop-selection {
+  @apply border-transparent !shadow-[0_0_0_9999em_rgb(30_41_59_/_100%)];
+}
+
+.rc-slider-rail {
+  @apply dark:!bg-[#5f6777];
+}
+.rc-slider-track {
+  @apply !bg-black dark:!bg-white;
+}
+.rc-slider-handle,
+.rc-slider-handle:hover {
+  @apply bg-blue-500 !border-blue-500 !opacity-100 !shadow-none;
+}
