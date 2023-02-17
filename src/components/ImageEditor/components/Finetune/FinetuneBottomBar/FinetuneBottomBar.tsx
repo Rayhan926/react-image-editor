@@ -35,34 +35,22 @@ const FinetuneBottomBar = () => {
           slider={{
             onChange: (v) => {
               const value = Array.isArray(v) ? v[0] : v;
-              updateEditor((draft) => {
-                draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
-                  value;
-              });
-
-              // if (timeoutRef.current) {
-              //   clearTimeout(timeoutRef.current);
-              //   updateEditor((draft) => {
-              //     draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
-              //       value;
-              //   });
-              // }
-
-              // timeoutRef.current = setTimeout(() => {
-              //   updateEditor((draft) => {
-              //     draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
-              //       value;
-              //   }, true);
-              //   timeoutRef.current = null;
-              // }, 300);
+              updateEditor(
+                (draft) => {
+                  draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
+                    value;
+                },
+                true,
+                { timeout: 300 },
+              );
             },
-            onAfterChange(v) {
-              const value = Array.isArray(v) ? v[0] : v;
-              updateEditor((draft) => {
-                draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
-                  value;
-              }, true);
-            },
+            // onAfterChange(v) {
+            //   const value = Array.isArray(v) ? v[0] : v;
+            //   updateEditor((draft) => {
+            //     draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
+            //       value;
+            //   }, true);
+            // },
             value: activeOptionValue,
             min: 0,
             max: 100,

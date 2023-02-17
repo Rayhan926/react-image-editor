@@ -9,3 +9,5 @@ export const editorConfig = {
 
 export const bottomBarBtn =
   "px-2.5 __center gap-1 py-[5px] rounded-full __btn border-transparent hover:bg-transparent";
+export const btn =
+  "px-2.5 __center gap-1 py-[5px] rounded-full __btn btn_transparent";

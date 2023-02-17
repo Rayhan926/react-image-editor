@@ -1,6 +1,6 @@
 import { SliderProps } from "rc-slider";
 import { ReactNode } from "react";
-import { Crop } from "react-image-crop";
+import { PixelCrop } from "react-image-crop";
 import { DraftFunction } from "use-immer";
 import { finetuneAllOptionKeys } from "../config/finetuneOptions";
 
@@ -23,10 +23,16 @@ export type SidebarButtonProps = {
 } & SidebarOption;
 
 export type InitialStates = {
+  previewImage: {
+    src: string;
+    width: number;
+    height: number;
+  };
   activeOption: SidebarOption;
   flipX: boolean;
   cropOption: {
-    crop: Crop;
+    aspect?: number;
+    crop: PixelCrop;
   };
   finetuneOption: {
     activeOption: FinetuneOption;
@@ -42,10 +48,12 @@ export type InitialStates = {
       sepia: number;
     };
   };
+  hasStateTransition: boolean;
 };
 
 export type UpdateEditorOptions = {
-  timeout: number;
+  timeout?: number;
+  transition?: boolean;
 };
 
 export type ImageEditorContextType = {
@@ -61,6 +69,12 @@ export type ImageEditorContextType = {
   undo: () => void;
   redo: () => void;
   resetEditorHistory: () => void;
+  setPreviewImageRef: React.Dispatch<
+    React.SetStateAction<HTMLImageElement | null>
+  >;
+  previewImageRef: HTMLImageElement | null;
+  cropImage: () => void;
+  editorHistory: EditorHistory;
 } & InitialStates;
 
 export type DropdownOption = {
@@ -80,4 +94,10 @@ export type FinetuneOption = {
 export type EditorHistory = {
   head: number;
   history: InitialStates[];
+};
+
+export type GetMaxWidthHeight = {
+  width: number;
+  height: number;
+  ratio?: number;
 };

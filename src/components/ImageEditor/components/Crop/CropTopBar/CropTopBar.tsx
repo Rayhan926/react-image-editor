@@ -1,10 +1,11 @@
 import { AiOutlineRotateLeft } from "react-icons/ai";
 import { BiCrop } from "react-icons/bi";
 import { TbFlipVertical } from "react-icons/tb";
+import { btn } from "../../../config/constants";
 import useImageEditor from "../../../hooks/useImageEditor";
+import { centerAspectCrop, getMaxWidthHeight } from "../../../utils";
+import CropShapeDropdown from "../../CropShapeDropdown";
 import DropdownSelect from "../../DropdownSelect";
-
-const btn = "px-2.5 __center gap-1 py-[5px] rounded-full __btn btn_transparent";
 
 const CropTopBar = () => {
   const { updateEditor } = useImageEditor();
@@ -13,7 +14,32 @@ const CropTopBar = () => {
       <DropdownSelect
         onChange={() => {}}
         handleNode={
-          <button className={btn}>
+          <button
+            className={btn}
+            // onClick={() => {
+            //   updateEditor((draft) => {
+            //     draft.cropOption.aspect = 1;
+            //     const { width, height } = getMaxWidthHeight({
+            //       width: draft.cropOption.crop.width,
+            //       height: draft.cropOption.crop.height,
+            //       ratio: 1,
+            //     });
+
+            //     draft.cropOption.crop = centerAspectCrop(
+            //       draft.cropOption.crop.width,
+            //       draft.cropOption.crop.height,
+            //       1,
+            //       width,
+            //       height,
+            //     );
+
+            //     // draft.cropOption.crop.width = width;
+            //     // draft.cropOption.crop.height = height;
+            //     // draft.cropOption.crop.x =
+            //     //   (draft.cropOption.crop.width - width) / 2;
+            //   });
+            // }}
+          >
             <AiOutlineRotateLeft />
             Rotate Left
           </button>
@@ -50,10 +76,7 @@ const CropTopBar = () => {
         <TbFlipVertical size={17} />
         Flip horizontal
       </button>
-      <button className={btn}>
-        <BiCrop />
-        Crop Shape
-      </button>
+      <CropShapeDropdown />
     </div>
   );
 };

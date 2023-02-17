@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply text-xs;
+  @apply text-xs select-none;
 }
 
 @layer components {
@@ -27,7 +27,7 @@ body {
 
 /* ReactCrop */
 .ReactCrop {
-  @apply !overflow-visible;
+  @apply !overflow-visible !cursor-auto;
 }
 .ReactCrop__drag-handle::after {
   @apply w-4 h-4 bg-white rounded-full;
