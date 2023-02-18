@@ -67,3 +67,17 @@ transition: all 0.3s ease-in-out !important;
     style.remove();
   }, 400);
 };
+
+export const convertToObjects = (obj: any): any => {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(convertToObjects);
+  }
+  const result: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = convertToObjects(value);
+  }
+  return result;
+};

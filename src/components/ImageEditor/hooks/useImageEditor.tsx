@@ -7,16 +7,19 @@ import {
   useState,
 } from "react";
 import { DraftFunction, useImmer } from "use-immer";
+import cropOptions from "../config/cropOptions";
 import finetuneOptions from "../config/finetuneOptions";
 import sidebarConfig from "../config/sidebarConfig";
 import {
   EditorHistory,
   ImageEditorContextType,
   InitialStates,
+  LoadingReason,
   UpdateEditorOptions,
 } from "../types";
 import {
   addTransition,
+  convertToObjects,
   getHeightAndWidthFromDataUrl,
   getMaxWidthHeight,
 } from "../utils";
@@ -34,6 +37,11 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
     activeOption: sidebarConfig.options[0],
     flipX: false,
     cropOption: {
+      activeOption: cropOptions[0],
+      options: {
+        rotation: 45,
+        scale: 0,
+      },
       aspect: undefined,
       crop: {
         width: 0,
@@ -57,6 +65,10 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
         sepia: 0,
       },
     },
+    loading: {
+      status: false,
+      reason: null,
+    },
     hasStateTransition: false,
   };
 
@@ -75,10 +87,20 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
   console.log(editorHistory);
 
   const canUndo = editorHistory.head > 0;
+
   const canRedo =
     editorHistory.history.length > 0 &&
     editorHistory.head < editorHistory.history.length - 1;
+
   const hasEditorHistory = canUndo;
+
+  const rotation = editor.cropOption.options.rotation - 45;
+
+  const _minScale = 1 + editor.cropOption.options.scale / 25;
+  const minScaleWhenRotate = _minScale + Math.abs(rotation) * 0.025;
+
+  const minScale =
+    minScaleWhenRotate > _minScale ? minScaleWhenRotate : _minScale;
 
   const undo = () => {
     updateEditorHistory((draft) => {
@@ -109,7 +131,7 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
 
   const resetEditorHistory = () => {
     updateEditorHistory((draft) => {
-      const tempFirstState = JSON.parse(JSON.stringify(draft.history[0]));
+      const tempFirstState = convertToObjects(draft.history[0]);
       draft.head = 0;
       draft.history = [tempFirstState];
 
@@ -121,33 +143,59 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
 
   const cropImage = () => {
     if (previewImageRef) {
-      // addTransition();
-      getCroppedImageUrl(previewImageRef, editor.cropOption.crop).then(
-        (croppedUrl) => {
-          getHeightAndWidthFromDataUrl(croppedUrl).then((d) => {
-            const { width, height } = getMaxWidthHeight({
-              width: d.width,
-              height: d.height,
-            });
-
-            updateEditor((draft) => {
-              draft.previewImage = {
-                src: croppedUrl,
-                width,
-                height,
-              };
-              draft.cropOption.crop = {
-                ...draft.cropOption.crop,
-                x: 0,
-                y: 0,
-                width: width,
-                height: height,
-              };
-            }, true);
+      startLoading("cropping");
+      getCroppedImageUrl(
+        previewImageRef,
+        editor.cropOption.crop,
+        minScale,
+        rotation,
+      ).then((croppedUrl) => {
+        getHeightAndWidthFromDataUrl(croppedUrl).then((d) => {
+          const { width, height } = getMaxWidthHeight({
+            width: d.width,
+            height: d.height,
           });
-        },
-      );
+
+          updateEditor((draft) => {
+            draft.previewImage = {
+              src: croppedUrl,
+              width,
+              height,
+            };
+            draft.cropOption.options.rotation =
+              initialStates.cropOption.options.rotation;
+            draft.cropOption.options.scale =
+              initialStates.cropOption.options.scale;
+            draft.cropOption.crop = {
+              ...draft.cropOption.crop,
+              x: initialStates.cropOption.crop.x,
+              y: initialStates.cropOption.crop.y,
+              width: width,
+              height: height,
+            };
+          }, true);
+
+          endLoading();
+        });
+      });
     }
+  };
+
+  const startLoading = (reason: LoadingReason) => {
+    updateEditor((d) => {
+      d.loading = {
+        status: true,
+        reason,
+      };
+    });
+  };
+  const endLoading = () => {
+    updateEditor((d) => {
+      d.loading = {
+        status: false,
+        reason: null,
+      };
+    });
   };
 
   const timeoutRef = useRef<any>(null);
@@ -157,7 +205,7 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
       addToEditorHistory?: boolean,
       options?: UpdateEditorOptions,
     ) => {
-      if (options?.transition) {
+      if (options?.transition && options.ignoreTransitionWhileAdding !== true) {
         addTransition();
       }
 
@@ -173,7 +221,6 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
           //   return;
           // }
 
-          console.log({ ss: options?.transition });
           if (options?.transition) {
             d.hasStateTransition = true;
           } else {
@@ -181,7 +228,7 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
           }
 
           if (addToEditorHistory) {
-            const parsedDraft = JSON.parse(JSON.stringify(d));
+            const parsedDraft = convertToObjects(d);
 
             if (timeoutRef.current) {
               clearTimeout(timeoutRef.current);
@@ -200,7 +247,7 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
       }
       return _updateEditor(draft);
     },
-    [_updateEditor, updateEditorHistory],
+    [_updateEditor, editor, updateEditorHistory],
   );
 
   return (
@@ -219,6 +266,10 @@ export const ImageEditorProvider = ({ children }: { children: ReactNode }) => {
         setPreviewImageRef,
         cropImage,
         editorHistory,
+        minScale,
+        rotation,
+        startLoading,
+        endLoading,
       }}
     >
       {children}

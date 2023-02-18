@@ -2,6 +2,7 @@ import { SliderProps } from "rc-slider";
 import { ReactNode } from "react";
 import { PixelCrop } from "react-image-crop";
 import { DraftFunction } from "use-immer";
+import { cropAllOptionKeys } from "../config/cropOptions";
 import { finetuneAllOptionKeys } from "../config/finetuneOptions";
 
 export type SidebarAllOptionKeys = "crop" | "finetune";
@@ -22,6 +23,7 @@ export type SidebarButtonProps = {
   active?: boolean;
 } & SidebarOption;
 
+export type LoadingReason = "cropping" | "saving" | null;
 export type InitialStates = {
   previewImage: {
     src: string;
@@ -31,6 +33,11 @@ export type InitialStates = {
   activeOption: SidebarOption;
   flipX: boolean;
   cropOption: {
+    activeOption: CropOption;
+    options: {
+      rotation: number;
+      scale: number;
+    };
     aspect?: number;
     crop: PixelCrop;
   };
@@ -48,12 +55,17 @@ export type InitialStates = {
       sepia: number;
     };
   };
+  loading: {
+    status: boolean;
+    reason: LoadingReason;
+  };
   hasStateTransition: boolean;
 };
 
 export type UpdateEditorOptions = {
   timeout?: number;
   transition?: boolean;
+  ignoreTransitionWhileAdding?: boolean;
 };
 
 export type ImageEditorContextType = {
@@ -75,6 +87,10 @@ export type ImageEditorContextType = {
   previewImageRef: HTMLImageElement | null;
   cropImage: () => void;
   editorHistory: EditorHistory;
+  minScale: number;
+  rotation: number;
+  startLoading: (reason: LoadingReason) => void;
+  endLoading: () => void;
 } & InitialStates;
 
 export type DropdownOption = {
@@ -83,6 +99,7 @@ export type DropdownOption = {
 };
 
 export type FinetuneAllOption = typeof finetuneAllOptionKeys[number];
+export type CropAllOption = typeof cropAllOptionKeys[number];
 
 export type FinetuneOption = {
   optionKey: FinetuneAllOption;
@@ -90,6 +107,9 @@ export type FinetuneOption = {
   sliderOptions?: SliderProps;
   valueModifier?: (v: number) => number;
 };
+export type CropOption = {
+  optionKey: CropAllOption;
+} & Omit<FinetuneOption, "optionKey">;
 
 export type EditorHistory = {
   head: number;

@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { cx } from "../../../../../utils";
 import { bottomBarBtn } from "../../../config/constants";
 import finetuneOptions from "../../../config/finetuneOptions";
@@ -13,8 +12,6 @@ const FinetuneBottomBar = () => {
 
   const activeOptionValue =
     finetuneOption.filters[finetuneActiveOption.optionKey];
-
-  const timeoutRef = useRef<any>(null);
 
   return (
     <div className="flex flex-col items-center justify-end h-full gap-3">
@@ -41,16 +38,13 @@ const FinetuneBottomBar = () => {
                     value;
                 },
                 true,
-                { timeout: 300 },
+                {
+                  timeout: 300,
+                  transition: true,
+                  ignoreTransitionWhileAdding: true,
+                },
               );
             },
-            // onAfterChange(v) {
-            //   const value = Array.isArray(v) ? v[0] : v;
-            //   updateEditor((draft) => {
-            //     draft.finetuneOption.filters[finetuneActiveOption.optionKey] =
-            //       value;
-            //   }, true);
-            // },
             value: activeOptionValue,
             min: 0,
             max: 100,
